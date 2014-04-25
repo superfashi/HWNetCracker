@@ -1,4 +1,4 @@
-hwnetcracker
+HWNetCracker
 ============
 
-A HW Network cracker. Only for students in HW.
+A HW Network Cracker. Only for students in HW.
