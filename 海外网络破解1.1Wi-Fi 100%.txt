@@ -1,0 +1,107 @@
+﻿@echo off
+TITLE  破解海外破网络 By James
+color fc
+
+if exist %windir%\system32\wget.exe (goto 1)
+echo 请运行破解海外破网络副程序，如没有请向James索要
+echo 请按任意键退出...
+pause >nul
+exit
+
+:1
+set number=0
+mode con cols=31 lines=18
+CLS
+echo      1.开始破解
+echo      2.开始破解（自己输入）
+echo      3.恢复IP（连接上模式）
+echo      4.恢复IP（DHCP指派）
+echo      5.查看源码
+echo      6.退出
+echo.
+echo      --------------------
+echo        由超牛逼的James编写
+echo        版权所有，仿冒必究
+echo        Ver. 1.1 Wi-Fi
+echo        百分之百成功率版
+echo        如果喜欢请考虑捐赠
+echo      --------------------
+echo.
+set "select="
+set /p select=输入数字，按回车继续:
+
+:select
+if "%select%"=="1" (goto starttry)
+if "%select%"=="2" (goto startenter)
+if "%select%"=="3" (goto reco)
+if "%select%"=="4" (goto reco1)
+if "%select%"=="5" (start https://github.com/hanbang-wang/hwnetcracker)
+if "%select%"=="6" (exit)
+echo.
+set /p select=输入错误，请重新输入:
+echo.
+goto select
+
+:reco
+echo.
+echo 正在恢复ip中
+set /a rd=%random%%%254
+netsh interface ipv4 set address name="Wi-Fi" source=static 10.10.16.%rd% 255.255.255.0 10.10.11.254>nul
+netsh interface ipv4 set dns name="Wi-Fi" source=static 202.106.0.20>nul
+timeout /t 4 /nobreak>nul
+if %number%==1 (goto starttry) else (goto 1)
+
+:reco1
+echo.
+echo 正在恢复ip中
+netsh interface ipv4 set address name="Wi-Fi" source=dhcp>nul
+netsh interface ipv4 set dns name="Wi-Fi" source=dhcp>nul
+goto 1
+
+:startenter
+echo.
+echo 输入ip地址(10.10.xx.xxx，第一个xx小于20，第二个小于254)，如果打a则为自动尝试
+echo 例：10.10.13.66 10.10.a.66 10.10.13.a
+
+:reenter
+set /p ipaddr=10.10.
+echo %ipaddr%>1.txt
+setlocal enabledelayedexpansion
+for /f "tokens=1 delims=." %%a in (1.txt) do (set ipaddr1=%%a)
+for /f "tokens=2 delims=." %%b in (1.txt) do (set ipaddr2=%%b)
+erase /f /q 1.txt
+IF '%ipaddr1%'=='a' (set /a ipaddr1=%random%%%21)
+IF '%ipaddr2%'=='a' (set /a ipaddr2=%random%%%61)
+IF %ipaddr1% geq 20 (
+echo 输入错误，请重新输入：
+goto reenter)
+IF %ipaddr2% geq 254 (
+echo 输入错误，请重新输入：
+goto reenter)
+netsh interface ipv4 set address name="Wi-Fi" source=static 10.10.%ipaddr1%.%ipaddr2% 255.255.255.0 10.10.11.254>nul
+timeout /t 4 /nobreak>nul
+start http://172.16.1.1:90/login
+goto 1
+
+:starttry
+set number=0
+ping -n 1 baidu.com>nul
+if %ERRORLEVEL%==1 (
+set number=1
+goto reco
+)
+echo.
+echo 正在破解ip中
+set /a rd=%random%%%254
+ping -n 1 10.10.12.%rd%>nul
+if %ERRORLEVEL%==0 (goto set)
+if %ERRORLEVEL%==1 (goto starttry)
+
+:set
+netsh interface ipv4 set address name="Wi-Fi" source=static 10.10.12.%rd% 255.255.255.0 10.10.11.254>nul
+timeout /t 4 /nobreak>nul
+wget -q http://172.16.1.1:90/login
+if not exist login (goto starttry)
+erase /f /q login
+start http://172.16.1.1:90/login
+goto 1
